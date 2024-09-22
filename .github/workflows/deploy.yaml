@@ -1,0 +1,29 @@
+name: Deploy to Kubernetes
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'core/**'
+
+jobs:
+  deploy:
+    runs-on: internal-k8s
+    container:
+      image: hashicorp/terraform:1.9
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Initialize Terraform
+        working-directory: core
+        run: terraform init
+
+      - name: Plan Terraform
+        working-directory: core
+        run: terraform plan -out=tfplan
+
+      - name: Apply Terraform
+        working-directory: core
+        run: terraform apply -auto-approve tfplan
